@@ -1,0 +1,474 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@postgres/app"
+}
+
+model Company {
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  logoURL              String?
+  email                String   @unique
+  subscriptionTier     String   @default("Basic") // Basic, Pro, Enterprise
+  subscriptionExpiry   DateTime?
+  isActive             Boolean  @default(false)
+  approvedByDeveloper  Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  shows                Show[]
+  scenes               Scene[]
+  users                User[]
+  callSheets           CallSheet[]
+  reports              Report[]
+  automationLogs       AutomationLog[]
+  recipientGroups      RecipientGroup[]
+  roles                Role[]
+  departments          Department[]
+  announcements        Announcement[]
+  productionHouses     ProductionHouse[]
+}
+
+model ProductionHouse {
+  id            Int      @id @default(autoincrement())
+  companyId     Int
+  adminId       Int?
+  parentProductionHouseId Int?
+  name          String
+  description   String?  @db.Text
+  logoURL       String?
+  contactEmail  String?
+  contactPhone  String?
+  website       String?
+  address       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  admin         User?    @relation("ProductionHouseAdmin", fields: [adminId], references: [id], onDelete: Restrict)
+  parentProductionHouse ProductionHouse? @relation("ProductionHouseHierarchy", fields: [parentProductionHouseId], references: [id], onDelete: Restrict)
+  childProductionHouses ProductionHouse[] @relation("ProductionHouseHierarchy")
+  shows         Show[]
+  productionHouseMembers ProductionHouseMember[]
+
+  @@unique([companyId, name])
+}
+
+model ProductionHouseMember {
+  id                Int      @id @default(autoincrement())
+  productionHouseId Int
+  userId            Int
+  roleId            Int?     // Role specific to this production house
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  productionHouse   ProductionHouse @relation(fields: [productionHouseId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+  @@unique([productionHouseId, userId])
+  @@index([userId])
+  @@index([productionHouseId])
+}
+
+model Show {
+  id                  Int      @id @default(autoincrement())
+  companyId           Int
+  title               String
+  productionHouseId   Int?
+  description         String?
+  startDate           DateTime?
+  endDate             DateTime?
+  status              String   @default("Pre-Production") // Pre-Production, Shooting, Wrapped
+  thumbnailURL        String?
+  approvalStatus      String   @default("pending") // pending, approved, rejected
+  createdBy           Int
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  productionHouse     ProductionHouse?  @relation(fields: [productionHouseId], references: [id], onDelete: Restrict)
+  scenes              Scene[]
+  callSheets          CallSheet[]
+  reports             Report[]
+  userShows           UserShow[]
+  characterRoles      CharacterRole[]
+  actorCharacters     ActorCharacter[]
+  crewAssignments     CrewAssignment[]
+  announcements       Announcement[]
+  messages            Message[]
+}
+
+model Scene {
+  id              Int      @id @default(autoincrement())
+  showId          Int
+  companyId       Int
+  sceneNumber     String
+  title           String
+  description     String?
+  location        String?
+  scheduledTime   DateTime?
+  status          String   @default("Unshot") // Unshot, In Progress, Complete
+  timerStart      DateTime?
+  timerEnd        DateTime?
+  durationMinutes Int?
+  assignedActors  String?  // JSON array as string
+  assignedCrew    String?  // JSON array as string
+  notes           String?
+  shootingDayNumber    Int?
+  expectedDurationMinutes Int?
+  scriptPageStart      String?
+  scriptPageEnd        String?
+  isReshoot            Boolean  @default(false)
+  equipmentNeeded      String?  // JSON array as string
+  specialInstructions  String?  @db.Text
+  cameraSetup          String?
+  lightingSetup        String?
+  soundRequirements    String?
+  props                String?  // JSON array as string
+  costumes             String?  // JSON array as string
+  makeup               String?
+  vfxRequired          Boolean  @default(false)
+  vfxNotes             String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  show            Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  companyId       Int
+  roleId          Int?     // Foreign key to Role
+  showIds         String?  // JSON array as string
+  name            String
+  email           String   @unique
+  passwordHash    String
+  passwordResetToken        String?
+  passwordResetTokenExpiry  DateTime?
+  phone           String?
+  isActive        Boolean  @default(true)
+  profileImage    String?
+  statusMessage   String?
+  approvedByAdmin Boolean  @default(false)
+  receiveEmailNotifications Boolean @default(true)
+  receiveSmsNotifications   Boolean @default(false)
+  createdAt       DateTime @default(now())
+  lastLogin       DateTime?
+  lastActiveAt    DateTime?
+  updatedAt       DateTime @updatedAt
+
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  role            Role?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  recipientGroupMemberships RecipientGroupMember[]
+  userShows       UserShow[]
+  actorCharacters ActorCharacter[]
+  crewAssignments CrewAssignment[]
+  sentAnnouncements         Announcement[] @relation("SentAnnouncements")
+  receivedAnnouncements     AnnouncementRecipient[]
+  sentMessages          Message[] @relation("SentMessages")
+  receivedMessages      Message[] @relation("ReceivedMessages")
+  messageReadReceipts   MessageReadReceipt[]
+  productionHousesManaged ProductionHouse[] @relation("ProductionHouseAdmin")
+  productionHouseMemberships ProductionHouseMember[]
+}
+
+model UserShow {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  showId    Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, showId])
+}
+
+model CharacterRole {
+  id          Int      @id @default(autoincrement())
+  showId      Int
+  name        String
+  description String?
+  type        String   @default("Supporting") // Main, Supporting, Minor, Extra
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  actorCharacters ActorCharacter[]
+
+  @@unique([showId, name])
+}
+
+model ActorCharacter {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  characterRoleId Int
+  showId          Int
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterRole   CharacterRole  @relation(fields: [characterRoleId], references: [id], onDelete: Cascade)
+  show            Show           @relation(fields: [showId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, characterRoleId, showId])
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  positions   Position[]
+  crewAssignments CrewAssignment[]
+
+  @@unique([companyId, name])
+}
+
+model Position {
+  id           Int      @id @default(autoincrement())
+  departmentId Int
+  name         String
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  crewAssignments CrewAssignment[]
+
+  @@unique([departmentId, name])
+}
+
+model CrewAssignment {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  showId       Int
+  departmentId Int
+  positionId   Int
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  show         Show       @relation(fields: [showId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, showId, departmentId, positionId])
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // e.g., "manage_scenes", "manage_team"
+  displayName String   // e.g., "Manage Scenes", "Manage Team"
+  description String?
+  category    String   // e.g., "Scenes", "Team", "Reports"
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+}
+
+model Role {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  companyId    Int?     // null for system roles
+  isSystemRole Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company         Company?          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users           User[]
+  rolePermissions RolePermission[]
+  productionHouseMembers ProductionHouseMember[]
+
+  @@unique([companyId, name])
+}
+
+model RolePermission {
+  id           Int @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model CallSheet {
+  id             Int      @id @default(autoincrement())
+  companyId      Int
+  showId         Int
+  date           DateTime
+  location       String?
+  scenesIncluded String?  // JSON array as string
+  crewList       String?  // JSON array as string
+  actorList      String?  // JSON array as string
+  weatherInfo    String?
+  notes          String?
+  pdfURL         String?
+  createdBy      Int
+  createdAt      DateTime @default(now())
+
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  show           Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id              Int      @id @default(autoincrement())
+  companyId       Int
+  showId          Int
+  date            DateTime
+  completedScenes Int
+  totalScenes     Int
+  averageDuration Float?
+  delayedScenes   Int
+  longestScene    String?
+  totalPlannedScenes   Int?
+  scenesShot           Int?
+  scenesScheduled      Int?
+  completionRateOverall Float?
+  averageSetupTime     Float?
+  totalShootingTime    Float?
+  behindScheduleScenes Int?
+  aheadScheduleScenes  Int?
+  crewPresent          String?  // JSON array as string
+  issuesEncountered    String?  @db.Text
+  weatherConditions    String?
+  equipmentIssues      String?  @db.Text
+  notableAchievements  String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  show            Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+}
+
+model AutomationLog {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  actionType String
+  status     String
+  details    String?
+  timestamp  DateTime @default(now())
+
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  showId      Int?     // Optional - null for company-wide announcements
+  senderId    Int
+  subject     String
+  content     String   @db.Text
+  type        String   @default("general") // production_update, call_sheet_update, schedule_change, general
+  priority    String   @default("normal") // low, normal, high, urgent
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  show        Show?    @relation(fields: [showId], references: [id], onDelete: Cascade)
+  sender      User     @relation("SentAnnouncements", fields: [senderId], references: [id], onDelete: Cascade)
+  recipients  AnnouncementRecipient[]
+}
+
+model AnnouncementRecipient {
+  id              Int      @id @default(autoincrement())
+  announcementId  Int
+  userId          Int?     // Individual recipient
+  recipientGroupId Int?    // Or recipient group
+  readAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  announcement    Announcement     @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientGroup  RecipientGroup?  @relation(fields: [recipientGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@unique([announcementId, recipientGroupId])
+}
+
+model RecipientGroup {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  members     RecipientGroupMember[]
+  announcementRecipients AnnouncementRecipient[]
+
+  @@unique([companyId, name])
+}
+
+model RecipientGroupMember {
+  id      Int @id @default(autoincrement())
+  groupId Int
+  userId  Int
+
+  group   RecipientGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  showId      Int
+  senderId    Int
+  recipientId Int?     // For direct messages to specific users
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient   User?    @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  attachments MessageAttachment[]
+  readReceipts MessageReadReceipt[]
+
+  @@index([showId, createdAt])
+  @@index([senderId])
+  @@index([recipientId])
+}
+
+model MessageAttachment {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  url       String
+  fileName  String
+  fileSize  Int?
+  mimeType  String?
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model MessageReadReceipt {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  readAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+}
