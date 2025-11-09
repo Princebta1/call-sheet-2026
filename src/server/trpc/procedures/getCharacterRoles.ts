@@ -57,12 +57,12 @@ export const getCharacterRoles = baseProcedure
         type: role.type,
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
-        actors: role.actorCharacters.map((ac) => ({
-          id: ac.id,
-          userId: ac.userId,
-          name: ac.user.name,
-          email: ac.user.email,
-          profileImage: ac.user.profileImage,
+        actors: role.actorCharacters.map((actorCharacter) => ({
+          id: actorCharacter.id,
+          userId: actorCharacter.userId,
+          name: actorCharacter.user.name,
+          email: actorCharacter.user.email,
+          profileImage: actorCharacter.user.profileImage,
           notes: ac.notes,
         })),
       })),

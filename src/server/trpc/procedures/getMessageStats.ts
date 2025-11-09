@@ -20,7 +20,7 @@ export const getMessageStats = baseProcedure
       where: { userId: user.id },
       select: { showId: true },
     });
-    const showIds = userShows.map((us) => us.showId);
+    const showIds = userShows.map((userShow) => userShow.showId);
 
     if (showIds.length === 0) {
       return {

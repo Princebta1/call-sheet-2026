@@ -18,7 +18,7 @@ export const getAnnouncements = baseProcedure
       where: { userId: user.id },
       select: { groupId: true },
     });
-    const groupIds = userGroups.map((g) => g.groupId);
+    const groupIds = userGroups.map((group) => group.groupId);
 
     // Fetch announcements where user is a recipient (directly or through groups)
     const announcements = await db.announcement.findMany({

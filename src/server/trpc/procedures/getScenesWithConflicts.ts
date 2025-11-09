@@ -54,7 +54,7 @@ export const getScenesWithConflicts = baseProcedure
     });
     
     // Get conflicts for all scenes
-    const sceneIds = scenes.map(s => s.id);
+    const sceneIds = scenes.map((scene) => scene.id);
     const conflictMap = await getConflictsForScenes(sceneIds, user.companyId);
     
     // Combine scenes with their conflict information

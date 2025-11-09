@@ -37,20 +37,20 @@ export const getCompanyUsers = baseProcedure
     });
 
     return {
-      users: users.map((u) => ({
-        id: u.id,
-        name: u.name,
-        email: u.email,
-        phone: u.phone,
-        role: u.role?.name || "No Role",
-        roleId: u.roleId,
-        isActive: u.isActive,
-        approvedByAdmin: u.approvedByAdmin,
-        profileImage: u.profileImage,
-        statusMessage: u.statusMessage,
-        createdAt: u.createdAt,
-        lastLogin: u.lastLogin,
-        lastActiveAt: u.lastActiveAt,
+      users: users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role?.name || "No Role",
+        roleId: user.roleId,
+        isActive: user.isActive,
+        approvedByAdmin: user.approvedByAdmin,
+        profileImage: user.profileImage,
+        statusMessage: user.statusMessage,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
+        lastActiveAt: user.lastActiveAt,
       })),
     };
   });

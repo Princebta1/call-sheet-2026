@@ -50,7 +50,7 @@ export const inviteBulkUsers = baseProcedure
     }
 
     // Verify all roles exist and are available to this company
-    const roleIds = [...new Set(input.users.map((u) => u.roleId))];
+    const roleIds = [...new Set(input.users.map((userInput) => userInput.roleId))];
     const roles = await db.role.findMany({
       where: {
         id: { in: roleIds },

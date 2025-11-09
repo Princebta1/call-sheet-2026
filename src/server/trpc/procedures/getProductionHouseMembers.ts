@@ -79,7 +79,7 @@ export const getProductionHouseMembers = baseProcedure
         lastActiveAt: member.user.lastActiveAt,
         roleId: member.roleId,
         roleName: member.role?.name || "No Role",
-        permissions: member.role?.rolePermissions.map((rp) => rp.permission.name) || [],
+        permissions: member.role?.rolePermissions.map((rolePermission) => rolePermission.permission.name) || [],
         createdAt: member.createdAt,
       })),
     };

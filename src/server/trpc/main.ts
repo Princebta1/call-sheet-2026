@@ -2,7 +2,7 @@ import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-const t = initTRPC.create({
+const trpcInstance = initTRPC.create({
   transformer: superjson,
   sse: {
     enabled: true,
@@ -26,6 +26,6 @@ const t = initTRPC.create({
   },
 });
 
-export const createCallerFactory = t.createCallerFactory;
-export const createTRPCRouter = t.router;
-export const baseProcedure = t.procedure;
+export const createCallerFactory = trpcInstance.createCallerFactory;
+export const createTRPCRouter = trpcInstance.router;
+export const baseProcedure = trpcInstance.procedure;

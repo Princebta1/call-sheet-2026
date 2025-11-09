@@ -614,7 +614,7 @@ async function setup() {
       roleId = existing.id;
       
       // Sync permissions for existing role
-      const currentPermissions = existing.rolePermissions.map((rp) => rp.permission.name);
+      const currentPermissions = existing.rolePermissions.map((rolePermission) => rolePermission.permission.name);
       const expectedPermissions = roleData.permissions;
       
       // Find permissions to add (in expected but not in current)

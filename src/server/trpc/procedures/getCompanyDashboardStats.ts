@@ -58,16 +58,16 @@ export const getCompanyDashboardStats = baseProcedure
     });
 
     // Get role names for the counts
-    const roleIds = usersByRole.map((r) => r.roleId).filter((id): id is number => id !== null);
+    const roleIds = usersByRole.map((roleData) => roleData.roleId).filter((id): id is number => id !== null);
     const roles = await db.role.findMany({
       where: { id: { in: roleIds } },
       select: { id: true, name: true },
     });
 
-    const roleMap = new Map(roles.map((r) => [r.id, r.name]));
-    const teamByRole = usersByRole.map((r) => ({
-      role: r.roleId ? roleMap.get(r.roleId) || "Unknown" : "No Role",
-      count: r._count,
+    const roleMap = new Map(roles.map((role) => [role.id, role.name]));
+    const teamByRole = usersByRole.map((roleData) => ({
+      role: roleData.roleId ? roleMap.get(roleData.roleId) || "Unknown" : "No Role",
+      count: roleData._count,
     }));
 
     // Get production houses statistics
@@ -178,11 +178,11 @@ export const getCompanyDashboardStats = baseProcedure
       },
       productionHouses: {
         total: totalProductionHouses,
-        houses: productionHouses.map((ph) => ({
-          id: ph.id,
-          name: ph.name,
-          showCount: ph._count.shows,
-          memberCount: ph._count.productionHouseMembers,
+        houses: productionHouses.map((productionHouse) => ({
+          id: productionHouse.id,
+          name: productionHouse.name,
+          showCount: productionHouse._count.shows,
+          memberCount: productionHouse._count.productionHouseMembers,
         })),
       },
       shows: {

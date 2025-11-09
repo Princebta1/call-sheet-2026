@@ -31,7 +31,7 @@ export const getCurrentUser = baseProcedure
           description: role.description,
           isSystemRole: role.isSystemRole,
         };
-        permissions = role.rolePermissions.map((rp) => rp.permission.name);
+        permissions = role.rolePermissions.map((rolePermission) => rolePermission.permission.name);
       }
     }
 

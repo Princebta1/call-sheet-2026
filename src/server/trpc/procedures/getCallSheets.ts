@@ -37,19 +37,19 @@ export const getCallSheets = baseProcedure
     });
 
     return {
-      callSheets: callSheets.map((cs) => ({
-        id: cs.id,
-        showId: cs.showId,
-        showTitle: cs.show.title,
-        date: cs.date,
-        location: cs.location,
-        pdfURL: cs.pdfURL,
-        scenesIncluded: cs.scenesIncluded,
-        crewList: cs.crewList,
-        actorList: cs.actorList,
-        weatherInfo: cs.weatherInfo,
-        notes: cs.notes,
-        createdAt: cs.createdAt,
+      callSheets: callSheets.map((callSheet) => ({
+        id: callSheet.id,
+        showId: callSheet.showId,
+        showTitle: callSheet.show.title,
+        date: callSheet.date,
+        location: callSheet.location,
+        pdfURL: callSheet.pdfURL,
+        scenesIncluded: callSheet.scenesIncluded,
+        crewList: callSheet.crewList,
+        actorList: callSheet.actorList,
+        weatherInfo: callSheet.weatherInfo,
+        notes: callSheet.notes,
+        createdAt: callSheet.createdAt,
       })),
     };
   });

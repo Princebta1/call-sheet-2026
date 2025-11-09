@@ -52,7 +52,7 @@ export const getShows = baseProcedure
       });
 
       shows = userShows
-        .map((us) => us.show)
+        .map((userShow) => userShow.show)
         .filter((show) => show && show.companyId === user.companyId)
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }

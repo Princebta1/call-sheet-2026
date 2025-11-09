@@ -77,7 +77,7 @@ export async function getUserPermissions(userId: number): Promise<string[]> {
     return [];
   }
 
-  return user.role.rolePermissions.map((rp) => rp.permission.name);
+  return user.role.rolePermissions.map((rolePermission) => rolePermission.permission.name);
 }
 
 export function checkPermission(
