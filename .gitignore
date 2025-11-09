@@ -7,3 +7,5 @@ dist/
 build/
 *.log
 .vscode/
+app.config.timestamp_*.js
+src/generated/
