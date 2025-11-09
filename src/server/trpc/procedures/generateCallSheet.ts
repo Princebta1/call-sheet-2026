@@ -253,15 +253,35 @@ export const generateCallSheet = baseProcedure
     const bucketName = "call-sheets";
     const fileName = `callsheet-${show.id}-${targetDate.toISOString().split("T")[0]}-${Date.now()}.pdf`;
 
-    await minioClient.putObject(
-      bucketName,
-      fileName,
-      pdfBuffer,
-      pdfBuffer.length,
-      {
-        "Content-Type": "application/pdf",
-      }
-    );
+    // Ensure bucket exists before upload
+    const bucketExists = await minioClient.bucketExists(bucketName);
+    if (!bucketExists) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `MinIO bucket '${bucketName}' does not exist. Please run setup script.`,
+      });
+    }
+
+    // Convert Buffer to Readable stream for reliable upload
+    const pdfStream = Readable.from(pdfBuffer);
+
+    try {
+      await minioClient.putObject(
+        bucketName,
+        fileName,
+        pdfStream,
+        pdfBuffer.length,
+        {
+          "Content-Type": "application/pdf",
+        }
+      );
+    } catch (error) {
+      console.error("MinIO upload error:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to upload call sheet PDF to storage",
+      });
+    }
 
     const pdfURL = `${minioBaseUrl}/${bucketName}/${fileName}`;
 
