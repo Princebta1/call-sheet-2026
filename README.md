@@ -181,14 +181,44 @@ These are designed as placeholders showing "Feature in Development" to demonstra
 
 ## 🔒 Environment Variables
 
-The application uses the following environment variables (already configured in `.env`):
+The application requires the following environment variables to be configured in the `.env` file:
 
-```
-JWT_SECRET=<your-secret-key>
-ADMIN_PASSWORD=<admin-password>
+### Required Variables
+
+```bash
+# Environment
+NODE_ENV=development  # or production
+
+# Database
+DATABASE_URL=postgresql://postgres:postgres@postgres/app
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+ADMIN_PASSWORD=admin123
+
+# Email Configuration (Resend)
+# Sign up at https://resend.com to get your API key
+RESEND_API_KEY=re_your_api_key_here
+FROM_EMAIL=noreply@callsheet.app
+
+# MinIO Configuration
+MINIO_BUCKET=PSM Studios
 ```
 
-**Note:** The current values are suitable for development. For production, these should be changed to secure values.
+### Setup Instructions
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the values as needed:
+   - `JWT_SECRET`: Change to a secure random string for production
+   - `ADMIN_PASSWORD`: Set a strong password for the initial admin user
+   - `RESEND_API_KEY`: Get your API key from [Resend](https://resend.com) if you need email functionality
+   - `FROM_EMAIL`: Update to your verified sender email
+
+**Note:** The default values in `.env.example` are suitable for development. For production deployments, these should be changed to secure values.
 
 ## 🎭 Role Permissions
 
