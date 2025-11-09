@@ -86,8 +86,8 @@ export function EditShowModal({
     if (show) {
       const formatDateForInput = (date: Date | string | null | undefined) => {
         if (!date) return "";
-        const d = new Date(date);
-        return d.toISOString().split("T")[0];
+        const parsedDate = new Date(date);
+        return parsedDate.toISOString().split("T")[0];
       };
 
       reset({

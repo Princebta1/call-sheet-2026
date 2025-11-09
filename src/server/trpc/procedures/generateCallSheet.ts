@@ -85,13 +85,13 @@ export const generateCallSheet = baseProcedure
 
     // Compile crew list (non-actors)
     const crewList = users
-      .filter((u) => u.role !== "Actor")
-      .map((u) => ({
-        id: u.id,
-        name: u.name,
-        role: u.role,
-        phone: u.phone,
-        email: u.email,
+      .filter((user) => user.role !== "Actor")
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        phone: user.phone,
+        email: user.email,
       }));
 
     // Compile actor list from assigned actors in scenes
@@ -108,11 +108,11 @@ export const generateCallSheet = baseProcedure
     });
 
     const actorList = users
-      .filter((u) => u.role === "Actor" && actorIds.has(u.id))
-      .map((u) => ({
-        id: u.id,
-        name: u.name,
-        phone: u.phone,
+      .filter((user) => user.role === "Actor" && actorIds.has(user.id))
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
         email: u.email,
       }));
 
@@ -273,11 +273,11 @@ export const generateCallSheet = baseProcedure
         date: targetDate,
         location: input.location || null,
         scenesIncluded: JSON.stringify(
-          scenes.map((s) => ({
-            id: s.id,
-            sceneNumber: s.sceneNumber,
-            title: s.title,
-            scheduledTime: s.scheduledTime,
+          scenes.map((scene) => ({
+            id: scene.id,
+            sceneNumber: scene.sceneNumber,
+            title: scene.title,
+            scheduledTime: scene.scheduledTime,
           }))
         ),
         crewList: JSON.stringify(crewList),

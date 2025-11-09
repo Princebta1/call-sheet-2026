@@ -90,7 +90,7 @@ export const createRecipientGroup = baseProcedure
       name: group.name,
       description: group.description,
       memberCount: group.members.length,
-      members: group.members.map((m) => m.user),
+      members: group.members.map((member) => member.user),
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
     };

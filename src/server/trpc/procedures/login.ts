@@ -82,7 +82,7 @@ export const login = baseProcedure
       : null;
 
     const permissions = user.role
-      ? user.role.rolePermissions.map((rp) => rp.permission.name)
+      ? user.role.rolePermissions.map((rolePermission) => rolePermission.permission.name)
       : [];
 
     // Generate token with permissions

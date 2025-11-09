@@ -45,14 +45,14 @@ export const getRoles = baseProcedure
       description: role.description,
       isSystemRole: role.isSystemRole,
       userCount: role._count.users,
-      permissions: role.rolePermissions.map((rp) => ({
-        id: rp.permission.id,
-        name: rp.permission.name,
-        displayName: rp.permission.displayName,
-        description: rp.permission.description,
-        category: rp.permission.category,
+      permissions: role.rolePermissions.map((rolePermission) => ({
+        id: rolePermission.permission.id,
+        name: rolePermission.permission.name,
+        displayName: rolePermission.permission.displayName,
+        description: rolePermission.permission.description,
+        category: rolePermission.permission.category,
       })),
-      permissionIds: role.rolePermissions.map((rp) => rp.permissionId),
+      permissionIds: role.rolePermissions.map((rolePermission) => rolePermission.permissionId),
       createdAt: role.createdAt,
       updatedAt: role.updatedAt,
     }));

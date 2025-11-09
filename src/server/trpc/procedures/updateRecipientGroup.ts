@@ -114,7 +114,7 @@ export const updateRecipientGroup = baseProcedure
       name: updatedGroup.name,
       description: updatedGroup.description,
       memberCount: updatedGroup.members.length,
-      members: updatedGroup.members.map((m) => m.user),
+      members: updatedGroup.members.map((member) => member.user),
       createdAt: updatedGroup.createdAt,
       updatedAt: updatedGroup.updatedAt,
     };

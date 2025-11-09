@@ -98,7 +98,7 @@ export const cloneRole = baseProcedure
     });
 
     // Copy all permissions from source role
-    const permissionIds = sourceRole.rolePermissions.map((rp) => rp.permissionId);
+    const permissionIds = sourceRole.rolePermissions.map((rolePermission) => rolePermission.permissionId);
     
     if (permissionIds.length > 0) {
       await db.rolePermission.createMany({

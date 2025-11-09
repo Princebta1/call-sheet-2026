@@ -64,12 +64,12 @@ export const getDashboardStats = baseProcedure
       });
 
       shows = userShows
-        .map((us) => us.show)
+        .map((userShow) => userShow.show)
         .filter((show) => show.companyId === user.companyId);
     }
 
     const totalShows = shows.length;
-    const activeShows = shows.filter((s) => s.status === "Shooting").length;
+    const activeShows = shows.filter((show) => show.status === "Shooting").length;
     const totalScenes = shows.reduce((acc, show) => acc + show._count.scenes, 0);
 
     // Actor-specific stats
@@ -78,7 +78,7 @@ export const getDashboardStats = baseProcedure
       const allScenes = await db.scene.findMany({
         where: {
           companyId: user.companyId,
-          showId: { in: shows.map((s) => s.id) },
+          showId: { in: shows.map((show) => show.id) },
         },
       });
 
